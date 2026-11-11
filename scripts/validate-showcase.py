@@ -142,18 +142,30 @@ def inspect_history(root: Path) -> list[str]:
         return problems
 
     try:
-        result = subprocess.run(
+        listing = subprocess.run(
             ["git", "-C", str(root), "rev-list", "--objects", "--all"],
             capture_output=True, check=True,
-        )
+        ).stdout
     except (subprocess.CalledProcessError, FileNotFoundError):
         return problems
 
-    for line in result.stdout.decode("utf-8", "replace").splitlines():
-        parts = line.split(" ", 1)
-        if len(parts) != 2:
+    # `rev-list --objects` lista tambem as arvores de diretorio. O tipo do
+    # objeto separa os dois: so os blobs correspondem a arquivos.
+    try:
+        checked = subprocess.run(
+            ["git", "-C", str(root), "cat-file",
+             "--batch-check=%(objecttype) %(objectname) %(rest)"],
+            input=listing, capture_output=True, check=True,
+        ).stdout
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return problems
+
+    for line in checked.decode("utf-8", "replace").splitlines():
+        kind, _, remainder = line.partition(" ")
+        if kind != "blob":
             continue
-        blob, relative = parts[0], parts[1].strip()
+        sha, _, relative = remainder.partition(" ")
+        relative = relative.strip()
         if not relative or relative.startswith(".git/"):
             continue
         if not is_allowed_path(relative):
@@ -163,7 +175,7 @@ def inspect_history(root: Path) -> list[str]:
             continue
         try:
             content = subprocess.run(
-                ["git", "-C", str(root), "cat-file", "blob", blob],
+                ["git", "-C", str(root), "cat-file", "blob", sha],
                 capture_output=True, check=True,
             ).stdout
         except subprocess.CalledProcessError:

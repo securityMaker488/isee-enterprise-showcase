@@ -103,7 +103,7 @@ Resultados **medidos** na base de código privada (novembro/2026):
 
 | Suíte | Resultado |
 |---|---|
-| Backend (pytest) | 326 aprovados, 3 ignorados (dependem de PostgreSQL/Windows dedicados) |
+| Backend (pytest) | 335 aprovados, 3 ignorados (dependem de PostgreSQL/Windows dedicados) |
 | Serviços nativos (cargo test) | 14 aprovados |
 | Desktop (Maven/JUnit) | 37 aprovados |
 

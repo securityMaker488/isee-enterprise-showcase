@@ -9,7 +9,7 @@ testes automatizados → documentação. Nenhuma funcionalidade é declarada con
 
 | Suíte | Comando (base privada) | Resultado |
 |---|---|---|
-| Backend | `pytest backend/tests` | 326 aprovados, 3 ignorados |
+| Backend | `pytest backend/tests` | 335 aprovados, 3 ignorados |
 | Serviços nativos Rust | `cargo test --workspace` | 14 aprovados |
 | Desktop JavaFX | `mvn test` | 37 aprovados |
 
@@ -37,6 +37,10 @@ Os testes ignorados exigem PostgreSQL dedicado de testes ou ambiente Windows esp
 - Credencial inicial de administrador gerada por instalação (CSPRNG), sem senha
   padrão fixa; rotação única de credenciais legadas e arquivo de credenciais com
   ACL restrita.
+- Os segredos da instalação (chave de assinatura, token do canal IPC,
+  credencial inicial) são gravados em arquivo com ACL restrita ao usuário, ao
+  SYSTEM e aos Administradores — o arquivo é criado vazio, protegido e só
+  então recebe o conteúdo.
 - Token do canal entre o backend e os serviços nativos provisionado por
   instalação e exigido nas operações de controle; prova de ponta a ponta com o
   binário nativo real (recusa sem token, aceita com o token correto).
