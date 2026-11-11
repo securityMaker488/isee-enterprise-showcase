@@ -1,12 +1,17 @@
-name: Showcase (validação de documentação)
+name: Showcase (validação de apresentação)
 
 # Repositório PÚBLICO de apresentação. Nenhum segredo é usado neste
-# pipeline: ele apenas valida links e a ausência de material proprietário.
+# pipeline: ele apenas valida o conteúdo publicado.
+#
+# O validador roda a partir do branch CONFIAVEL (base). O conteúdo
+# candidato vem do pull request e nunca é executado — o validador apenas o
+# lê. Sem isso, um pull request poderia reescrever o próprio validador e
+# desativar a checagem.
 
 on:
   push:
     branches: [main]
-  pull_request:
+  pull_request_target:
     branches: [main]
 
 permissions:
@@ -14,12 +19,39 @@ permissions:
 
 jobs:
   validate:
-    name: Links internos e material proibido
+    name: Conteúdo, links e histórico
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Validador confiável (branch base)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha || github.sha }}
+          path: trusted
+
+      - name: Conteúdo candidato (somente leitura)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          path: candidate
+          persist-credentials: false
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+
       - name: Validar
-        run: python scripts/validate-showcase.py
+        run: python trusted/scripts/validate-showcase.py candidate
+
+  secrets:
+    name: Segredos no histórico
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Varredura com gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
