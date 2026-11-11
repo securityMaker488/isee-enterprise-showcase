@@ -8,8 +8,9 @@
 | Autorização | RBAC verificado no backend (Admin, Director, Secretary e perfis operacionais). |
 | Multi-tenant | Escopo de organização aplicado no servidor; proteção contra IDOR/BOLA. |
 | Credenciais de câmera | Senhas RTSP/ONVIF fora do modelo SQL, em gerenciador de segredos local. |
-| Comunicação entre processos | Serviços nativos escutam apenas em loopback, com token de IPC opcional. |
-| Instalação | *(em desenvolvimento)* Sem senhas padrão fixas; credencial inicial aleatória e arquivos sensíveis com ACL restrita. |
+| Comunicação entre processos | Serviços nativos escutam apenas em loopback; o token de IPC é provisionado por instalação e exigido nas operações de controle. |
+| Identidade da instalação | Chave de assinatura e credencial inicial geradas por instalação (CSPRNG) e persistidas no arquivo de ambiente da instalação — cada instalação é autossuficiente. |
+| Instalação | Sem senhas padrão fixas; credencial inicial aleatória e arquivos sensíveis com ACL restrita ao usuário, ao SYSTEM e aos Administradores. |
 | Logs | Sem segredos ou tokens em logs e argumentos de linha de comando. |
 | Supply chain | Dependências fixadas e auditadas; artefatos nativos compilados a partir do código-fonte. |
 | Repositório | Segredos, embeddings, fotos e bancos de dados de runtime nunca são versionados. |

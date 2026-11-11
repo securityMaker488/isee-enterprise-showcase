@@ -1,0 +1,25 @@
+name: Showcase (validação de documentação)
+
+# Repositório PÚBLICO de apresentação. Nenhum segredo é usado neste
+# pipeline: ele apenas valida links e a ausência de material proprietário.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Links internos e material proibido
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validar
+        run: python scripts/validate-showcase.py
