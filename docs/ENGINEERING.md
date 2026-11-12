@@ -9,8 +9,8 @@ testes automatizados → documentação. Nenhuma funcionalidade é declarada con
 
 | Suíte | Comando (base privada) | Resultado |
 |---|---|---|
-| Backend | `pytest backend/tests` | 335 aprovados, 3 ignorados |
-| Serviços nativos Rust | `cargo test --workspace` | 14 aprovados |
+| Backend | `pytest backend/tests` | 385 aprovados, 3 ignorados |
+| Serviços nativos Rust | `cargo test --workspace` | 19 aprovados |
 | Desktop JavaFX | `mvn test` | 37 aprovados |
 
 Os testes ignorados exigem PostgreSQL dedicado de testes ou ambiente Windows específico.
@@ -46,6 +46,28 @@ Os testes ignorados exigem PostgreSQL dedicado de testes ou ambiente Windows esp
   binário nativo real (recusa sem token, aceita com o token correto).
 - Instalador: o payload deixa de embutir embeddings, fotos, bancos de runtime,
   a suíte de testes e artefatos de build.
+
+**Ciclo de segurança do arquivo de ambiente**
+- O arquivo de ambiente da instalação passou a ser lido pela **mesma gramática
+  em todos os componentes** (o `python-dotenv` do backend): launcher, backend e
+  supervisor nativo leem o mesmo valor efetivo.
+- Antes, o launcher aproximava a leitura e o backend lia de outra forma: uma
+  senha pública seguida de comentário ao final da linha passava pela
+  validação e sobrevivia à rotação. Agora a rotação usa o valor efetivo.
+- O token do canal IPC repassado aos serviços nativos é o mesmo que o backend
+  valida — o supervisor não reinterpretava o arquivo por conta própria.
+- O arquivo de ambiente da instalação é gravado sem BOM, para que a primeira
+  chave seja legível por qualquer leitor.
+
+**Ciclo de segurança do repositório público**
+- O validador falha fechado: arquivo que não decodifica, histórico inacessível,
+  clone raso ou raiz que não é a raiz do Git são recusados — nunca aprovados.
+- O validador é vinculado à cópia confiável (SHA-256): um pull request não
+  pode substituir o próprio controle.
+- A detecção de código-fonte é agnóstica de linguagem e alcança código
+  renormalizado em Markdown, JSON ou YAML.
+- As ações do pipeline são fixadas no commit exato, e o dependabot é quem
+  avança esses SHAs.
 
 ## O que não afirmamos
 

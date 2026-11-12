@@ -1,0 +1,15 @@
+# Atualizacao deliberada das acoes fixadas por SHA.
+#
+# As acoes do workflow sao fixadas no commit exato (e nao numa tag movel),
+# para que o pipeline nao mude de comportamento sem que ninguem perceba.
+# O dependabot e quem avanca esses SHAs: a mudanca chega como pull request,
+# para revisao.
+
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "ci"

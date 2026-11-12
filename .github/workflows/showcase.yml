@@ -6,7 +6,12 @@ name: Showcase (validação de apresentação)
 # O validador roda a partir do branch CONFIAVEL (base). O conteúdo
 # candidato vem do pull request e nunca é executado — o validador apenas o
 # lê. Sem isso, um pull request poderia reescrever o próprio validador e
-# desativar a checagem.
+# desativar a checagem. O próprio validador compara a cópia candidata com
+# a cópia confiável e recusa a divergência.
+#
+# Todas as ações são fixadas no SHA do commit, não numa tag móvel. O
+# dependabot (.github/dependabot.yml) é quem avança esses SHAs, de forma
+# deliberada e com revisão.
 
 on:
   push:
@@ -23,19 +28,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Validador confiável (branch base)
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           ref: ${{ github.event.pull_request.base.sha || github.sha }}
           path: trusted
 
       - name: Conteúdo candidato (somente leitura)
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           path: candidate
           persist-credentials: false
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: '3.11'
 
@@ -46,12 +51,12 @@ jobs:
     name: Segredos no histórico
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
           persist-credentials: false
       - name: Varredura com gitleaks
-        uses: gitleaks/gitleaks-action@v2
+        uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2.3.9
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
